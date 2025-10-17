@@ -1,5 +1,6 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import {
   HomeIcon,
   ChartBarIcon,
@@ -37,7 +38,7 @@ const operationsNavigation = [
 ];
 
 const configurationNavigation = [
-  { name: 'Rules Engine', href: '/rules-engine', icon: PuzzlePieceIcon, isActive: true },
+  { name: 'Rules Engine', href: '/rules-engine', icon: PuzzlePieceIcon },
   { name: 'Providers', href: '/providers', icon: 'providers' }, // Custom icon
   { name: 'Payers', href: '/payers', icon: 'payers' }, // Custom icon
   { name: 'Contracts', href: '/contracts', icon: 'contracts' }, // Custom icon
@@ -76,6 +77,20 @@ function CustomIcon({ name, className }: { name: string; className: string }) {
 }
 
 export default function Sidebar({ onClose }: SidebarProps) {
+  const pathname = usePathname();
+
+  // Function to check if a navigation item should be active
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === '/';
+    }
+    // For claims, match both /claims and /claims/[id]
+    if (href === '/claims') {
+      return pathname === '/claims' || pathname.startsWith('/claims/');
+    }
+    // For other routes, check if pathname starts with href
+    return pathname.startsWith(href);
+  };
   return (
     <div className="bg-neutral-50 border-r border-gray-200 flex flex-col h-screen w-52 fixed top-0 left-0 z-10 overflow-y-auto">
       {/* Top Section */}
@@ -122,23 +137,33 @@ export default function Sidebar({ onClose }: SidebarProps) {
               Operations
             </p>
             <div className="flex flex-col gap-1 items-start w-full">
-              {operationsNavigation.map((item) => (
-                <div key={item.name} className="flex gap-3 items-center px-2 py-1 w-full">
-                  <div className="size-3">
-                    {typeof item.icon === 'string' ? (
-                      <CustomIcon name={item.icon} className="w-3 h-3 text-gray-500" />
-                    ) : (
-                      <item.icon className="w-3 h-3 text-gray-500" />
-                    )}
-                  </div>
-                  <a
-                    href={item.href}
-                    className="grow min-h-0 min-w-0 text-sm font-normal leading-6 text-gray-700 hover:text-gray-900"
+              {operationsNavigation.map((item) => {
+                const itemIsActive = isActive(item.href);
+                return (
+                  <div
+                    key={item.name}
+                    className={`flex gap-3 items-center overflow-hidden px-2 py-1 w-full ${
+                      itemIsActive ? 'bg-gray-200 rounded' : ''
+                    }`}
                   >
-                    {item.name}
-                  </a>
-                </div>
-              ))}
+                    <div className="size-3">
+                      {typeof item.icon === 'string' ? (
+                        <CustomIcon name={item.icon} className="w-3 h-3 text-gray-500" />
+                      ) : (
+                        <item.icon className="w-3 h-3 text-gray-500" />
+                      )}
+                    </div>
+                    <a
+                      href={item.href}
+                      className={`grow min-h-0 min-w-0 text-sm leading-6 hover:text-gray-900 ${
+                        itemIsActive ? 'font-medium text-gray-700' : 'font-normal text-gray-700'
+                      }`}
+                    >
+                      {item.name}
+                    </a>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -150,37 +175,40 @@ export default function Sidebar({ onClose }: SidebarProps) {
               </p>
             </div>
             <div className="flex flex-col gap-1 items-start w-full">
-              {configurationNavigation.map((item) => (
-                <div
-                  key={item.name}
-                  className={`flex gap-3 items-center overflow-hidden px-2 py-1 w-full ${
-                    item.isActive ? 'bg-gray-200 rounded' : ''
-                  }`}
-                >
-                  <div className="size-3">
-                    {typeof item.icon === 'string' ? (
-                      <CustomIcon name={item.icon} className="w-3 h-3 text-gray-500" />
-                    ) : (
-                      <item.icon className="w-3 h-3 text-gray-500" />
-                    )}
-                  </div>
-                  <a
-                    href={item.href}
-                    className={`grow min-h-0 min-w-0 text-sm leading-6 hover:text-gray-900 ${
-                      item.isActive ? 'font-medium text-gray-700' : 'font-normal text-gray-700'
+              {configurationNavigation.map((item) => {
+                const itemIsActive = isActive(item.href);
+                return (
+                  <div
+                    key={item.name}
+                    className={`flex gap-3 items-center overflow-hidden px-2 py-1 w-full ${
+                      itemIsActive ? 'bg-gray-200 rounded' : ''
                     }`}
                   >
-                    {item.name}
-                  </a>
-                  {item.badge && (
-                    <div className="bg-indigo-50 flex flex-col gap-2.5 items-start px-1 py-0.5 rounded-sm">
-                      <p className="text-xs font-normal leading-5 text-indigo-600">
-                        {item.badge}
-                      </p>
+                    <div className="size-3">
+                      {typeof item.icon === 'string' ? (
+                        <CustomIcon name={item.icon} className="w-3 h-3 text-gray-500" />
+                      ) : (
+                        <item.icon className="w-3 h-3 text-gray-500" />
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                    <a
+                      href={item.href}
+                      className={`grow min-h-0 min-w-0 text-sm leading-6 hover:text-gray-900 ${
+                        itemIsActive ? 'font-medium text-gray-700' : 'font-normal text-gray-700'
+                      }`}
+                    >
+                      {item.name}
+                    </a>
+                    {item.badge && (
+                      <div className="bg-indigo-50 flex flex-col gap-2.5 items-start px-1 py-0.5 rounded-sm">
+                        <p className="text-xs font-normal leading-5 text-indigo-600">
+                          {item.badge}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

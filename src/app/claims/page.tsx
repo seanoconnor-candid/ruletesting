@@ -1,15 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   MagnifyingGlassIcon,
   ChevronDownIcon,
   PlusIcon,
   EllipsisHorizontalIcon,
-  FunnelIcon,
-  DocumentTextIcon
+  FunnelIcon
 } from '@heroicons/react/24/outline';
 import Sidebar from '@/components/layout/Sidebar';
+import { PayerIcon } from '@/components/icons';
 
 interface Claim {
   id: string;
@@ -154,6 +155,11 @@ function FilterDropdown({ placeholder }: { placeholder: string }) {
 
 export default function ClaimsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
+
+  const handleClaimClick = (claimId: string) => {
+    router.push(`/claims/${claimId}`);
+  };
 
   return (
     <div className="bg-white relative shadow-sm size-full flex h-screen">
@@ -165,7 +171,7 @@ export default function ClaimsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between h-20 px-8 pt-8 pb-3 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-3">
-            <DocumentTextIcon className="w-6 h-6 text-gray-500" />
+            <PayerIcon className="text-gray-500" size={24} />
             <h1 className="text-3xl font-light text-gray-800">Claims</h1>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -262,7 +268,11 @@ export default function ClaimsPage() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {sampleClaims.map((claim) => (
-                <tr key={claim.id} className="hover:bg-gray-50">
+                <tr
+                  key={claim.id}
+                  className="hover:bg-gray-50 cursor-pointer"
+                  onClick={() => handleClaimClick(claim.id)}
+                >
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     {claim.patient}
                   </td>
@@ -285,7 +295,12 @@ export default function ClaimsPage() {
                     {claim.tags?.join(', ') || ''}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button className="text-gray-400 hover:text-gray-600">
+                    <button
+                      className="text-gray-400 hover:text-gray-600"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent row click when clicking menu
+                      }}
+                    >
                       <EllipsisHorizontalIcon className="w-5 h-5" />
                     </button>
                   </td>
