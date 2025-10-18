@@ -5,18 +5,26 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, PlusIcon, ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import Sidebar from '@/components/layout/Sidebar';
 import { PatientIcon, PayerIcon, BillingProviderIcon, ProviderIcon, ServiceFacilityIcon } from '@/components/icons';
-import { getClaimById } from '@/data/claims';
+import { getClaimById, type Claim } from '@/data/claims';
 
 interface ClaimDetailsProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function ClaimDetails({ params }: ClaimDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('properties');
+  const [claimId, setClaimId] = useState<string>('');
+  const [claim, setClaim] = useState<Claim | null>(null);
 
   // Get the claim data based on the ID parameter
-  const claim = getClaimById(params.id);
+  React.useEffect(() => {
+    params.then((resolvedParams) => {
+      setClaimId(resolvedParams.id);
+      const claimData = getClaimById(resolvedParams.id);
+      setClaim(claimData || null);
+    });
+  }, [params]);
 
   // If claim not found, show error or redirect
   if (!claim) {
@@ -26,7 +34,7 @@ export default function ClaimDetails({ params }: ClaimDetailsProps) {
         <div className="flex-1 bg-neutral-50 flex flex-col min-h-screen ml-52 items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-semibold text-gray-700 mb-4">Claim Not Found</h1>
-            <p className="text-gray-500 mb-4">The claim with ID {params.id} could not be found.</p>
+            <p className="text-gray-500 mb-4">The claim with ID {claimId} could not be found.</p>
             <button
               onClick={() => router.push('/claims')}
               className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
@@ -38,24 +46,7 @@ export default function ClaimDetails({ params }: ClaimDetailsProps) {
       </div>
     );
   }
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    'patient-demographics': false,
-    'primary-insurance': false,
-    'secondary-insurance': false,
-    'non-insurance-payer': false,
-    'billing': false,
-    'providers': false,
-    'care-team': false,
-    'service-facility': false,
-    'details': false,
-  });
 
-  const toggleSection = (sectionId: string) => {
-    setExpandedSections(prev => ({
-      ...prev,
-      [sectionId]: !prev[sectionId]
-    }));
-  };
 
   const handleBackClick = () => {
     router.push('/claims');
