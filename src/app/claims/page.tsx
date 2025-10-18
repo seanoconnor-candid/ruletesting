@@ -10,112 +10,8 @@ import {
   FunnelIcon
 } from '@heroicons/react/24/outline';
 import Sidebar from '@/components/layout/Sidebar';
-import { PayerIcon } from '@/components/icons';
-
-interface Claim {
-  id: string;
-  patient: string;
-  dos: string; // Date of Service
-  billedAmt: string;
-  payerName: string;
-  payerId: string;
-  status: 'Paid' | 'Coded' | 'Denied' | 'Finalized paid';
-  tags?: string[];
-}
-
-// Sample claims data based on the Figma design
-const sampleClaims: Claim[] = [
-  {
-    id: '1',
-    patient: 'John Smith',
-    dos: '03/11/2022',
-    billedAmt: '$410.00',
-    payerName: 'United Healthcare',
-    payerId: '84909',
-    status: 'Paid'
-  },
-  {
-    id: '2',
-    patient: 'Chelsie Ghiardini',
-    dos: '03/09/2022',
-    billedAmt: '$37.95',
-    payerName: 'United Healthcare',
-    payerId: '84909',
-    status: 'Coded'
-  },
-  {
-    id: '3',
-    patient: 'Chelsie Ghiardini',
-    dos: '03/09/2022',
-    billedAmt: '$37.95',
-    payerName: 'United Healthcare',
-    payerId: '84909',
-    status: 'Coded'
-  },
-  {
-    id: '4',
-    patient: 'Joaquin Zelaya',
-    dos: '03/09/2022',
-    billedAmt: '$164.50',
-    payerName: 'United Healthcare',
-    payerId: '84909',
-    status: 'Coded'
-  },
-  {
-    id: '5',
-    patient: 'Enrique Gomez',
-    dos: '03/08/2022',
-    billedAmt: '$78.80',
-    payerName: 'United Healthcare',
-    payerId: '84909',
-    status: 'Paid'
-  },
-  {
-    id: '6',
-    patient: 'Enrique Gomez',
-    dos: '03/08/2022',
-    billedAmt: '$78.80',
-    payerName: 'United Healthcare',
-    payerId: '84909',
-    status: 'Paid'
-  },
-  {
-    id: '7',
-    patient: 'Steve Johnson',
-    dos: '03/08/2022',
-    billedAmt: '$122.35',
-    payerName: 'Blue Cross Blue Shield...',
-    payerId: '94109',
-    status: 'Denied'
-  },
-  {
-    id: '8',
-    patient: 'Steve Johnson',
-    dos: '03/08/2022',
-    billedAmt: '$122.35',
-    payerName: 'Blue Cross Blue Shield...',
-    payerId: '94109',
-    status: 'Denied'
-  },
-  {
-    id: '9',
-    patient: 'Janie Smith',
-    dos: '03/08/2022',
-    billedAmt: '$27.80',
-    payerName: 'Cigna',
-    payerId: '61101',
-    status: 'Coded'
-  },
-  {
-    id: '10',
-    patient: 'Sandy Thomas',
-    dos: '03/07/2022',
-    billedAmt: '$27.80',
-    payerName: 'Cigna',
-    payerId: '61101',
-    status: 'Finalized paid'
-  }
-];
+import { ClaimsHeaderIcon } from '@/components/icons';
+import { sampleClaims, type Claim } from '@/data/claims';
 
 function StatusBadge({ status }: { status: Claim['status'] }) {
   const getStatusColor = (status: Claim['status']) => {
@@ -171,7 +67,7 @@ export default function ClaimsPage() {
         {/* Page Header */}
         <div className="flex items-center justify-between h-20 px-8 pt-8 pb-3 border-b border-gray-200 bg-white">
           <div className="flex items-center gap-3">
-            <PayerIcon className="text-gray-500" size={24} />
+            <ClaimsHeaderIcon className="text-gray-500" size={36} />
             <h1 className="text-3xl font-light text-gray-800">Claims</h1>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">
@@ -236,7 +132,7 @@ export default function ClaimsPage() {
         </div>
 
         {/* Claims Table */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto px-9">
           <table className="w-full bg-white">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>

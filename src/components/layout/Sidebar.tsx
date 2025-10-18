@@ -21,6 +21,7 @@ import {
   BookOpenIcon,
   QuestionMarkCircleIcon
 } from '@heroicons/react/24/outline';
+import { CandidLogo } from '@/components/icons';
 
 interface SidebarProps {
   onClose: () => void;
@@ -98,8 +99,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
         {/* Logo and Header */}
         <div className="flex gap-2.5 items-center px-4.5 py-0 w-full">
           <div className="size-6">
-            {/* Logo placeholder */}
-            <div className="w-6 h-6 bg-gray-400 rounded"></div>
+            <CandidLogo size={24} className="text-gray-800" />
           </div>
           <div className="flex gap-1.25 grow h-5.75 items-center min-h-0 min-w-0">
             <div className="flex flex-col font-medium grow justify-center leading-0 min-h-0 min-w-0 text-gray-800 text-sm">

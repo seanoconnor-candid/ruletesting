@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronDownIcon, PlusIcon, ArrowUpRightIcon, PuzzlePieceIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, PlusIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
+import { RulesHeaderIcon } from '@/components/icons';
 import RuleCard from '@/components/ui/RuleCard';
 import PipelineStep from '@/components/ui/PipelineStep';
 import SearchInput from '@/components/ui/SearchInput';
@@ -14,12 +15,80 @@ interface Rule {
   status: 'active' | 'inactive';
 }
 
-const sampleRules: Rule[] = Array(12).fill(null).map((_, index) => ({
-  id: `rule-${index + 1}`,
-  name: "Dani's Rule",
-  description: "This is a description of the rule",
-  status: 'active' as const
-}));
+const sampleRules: Rule[] = [
+  {
+    id: 'rule-1',
+    name: 'Pay-to address confirmation',
+    description: 'Sets the pay-to address',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-2',
+    name: 'MRN 999615 not billable',
+    description: 'MRN 999615 not billable',
+    status: 'inactive' as const
+  },
+  {
+    id: 'rule-3',
+    name: 'Add SA exception code for NY Medicaid',
+    description: 'Adds SA Exception Code "7" to claims which contain a CPT code that is not Medicaid\'s standard fee schedule',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-4',
+    name: 'Modifier 25 validation',
+    description: 'Ensures modifier 25 is applied when E&M service is performed on same day as procedure',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-5',
+    name: 'Prior authorization check',
+    description: 'Validates that prior authorization number is included for services requiring pre-approval',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-6',
+    name: 'Duplicate claim prevention',
+    description: 'Prevents submission of duplicate claims for same patient, date of service, and procedure code',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-7',
+    name: 'Medicare secondary payer logic',
+    description: 'Applies MSP logic when Medicare is secondary to other insurance coverage',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-8',
+    name: 'HCPCS code mapping',
+    description: 'Maps internal procedure codes to appropriate HCPCS codes for claim submission',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-9',
+    name: 'Place of service validation',
+    description: 'Validates place of service code matches the billing provider type and location',
+    status: 'inactive' as const
+  },
+  {
+    id: 'rule-10',
+    name: 'Corrected claim indicator',
+    description: 'Sets frequency code to 7 for corrected claims and includes original claim reference',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-11',
+    name: 'NPI validation',
+    description: 'Ensures all provider NPIs are valid and active in NPPES registry',
+    status: 'active' as const
+  },
+  {
+    id: 'rule-12',
+    name: 'ICD-10 diagnosis code validation',
+    description: 'Validates ICD-10 codes are current, billable, and appropriate for claim date of service',
+    status: 'active' as const
+  }
+];
 
 const pipelineSteps = [
   {
@@ -35,16 +104,21 @@ const pipelineSteps = [
     ]
   },
   {
-    phase: "GENERATE A CLAIM",
+    phase: "GENERATE CLAIM",
     isActive: true,
     steps: [
-      { name: "Payer", count: 2, isSelected: true },
-      { name: "Patient", count: 2 },
-      { name: "Service Facility", count: 2 },
-      { name: "Billing Provider", count: 2 },
-      { name: "BCBS Routing", count: 2 },
-      { name: "Service Lines", count: 2 },
-      { name: "Finalize Claim", count: 2, isHighlighted: true }
+      { name: "Hold Claim From Generation", count: 0 },
+      { name: "Prepare Claim Before Generation", count: 1 },
+      { name: "Update Patient Data", count: 9 },
+      { name: "Update Service Facility", count: 38 },
+      { name: "Update Providers", count: 9 },
+      { name: "Reroute Payer", count: 177 },
+      { name: "Update Coding", count: 25 },
+      { name: "Update Modifiers", count: 17 },
+      { name: "Add Charge Amounts", count: 1 },
+      { name: "Sync Presubmission Charges", count: 3 },
+      { name: "Finalize Claim", count: 13, isHighlighted: true },
+      { name: "Manage Tags", count: 1 }
     ]
   },
   {
@@ -75,18 +149,18 @@ export default function RulesEnginePage() {
   };
 
   return (
-    <div className="bg-white relative shadow-sm size-full flex h-screen">
+    <div className="bg-neutral-50 relative shadow-sm size-full flex h-screen">
       {/* Sidebar */}
       <Sidebar onClose={() => {}} />
 
       {/* Main Content */}
-      <div className="flex-1 bg-neutral-50 flex flex-col gap-4 min-h-screen ml-52">
+      <div className="flex-1 bg-neutral-50 flex flex-col gap-4 min-h-screen ml-52 h-screen overflow-y-auto">
         {/* Page Header */}
-        <div className="flex gap-2.5 h-20 items-start pb-3 pt-8 px-8 w-full">
+        <div className="sticky top-0 z-10 bg-neutral-50 flex gap-2.5 h-20 items-start pb-3 pt-8 px-8 w-full border-b border-gray-200">
           <div className="flex flex-col gap-2 grow items-start justify-end min-h-0 min-w-0">
             <div className="flex gap-2 items-center justify-center">
               <div className="size-9 flex items-center justify-center">
-                <PuzzlePieceIcon className="w-6 h-6 text-gray-500" />
+                <RulesHeaderIcon size={36} className="text-gray-500" />
               </div>
               <h1 className="text-3xl font-light leading-9 text-gray-800">
                 Rules Engine
@@ -118,9 +192,9 @@ export default function RulesEnginePage() {
           </div>
         </div>
 
-        <div className="flex items-start pl-8 pr-0 py-0 w-full">
-          {/* Left Rail */}
-          <div className="flex flex-col gap-3 items-start w-52">
+        <div className="flex items-start pl-8 pr-0 py-0 w-full h-full">
+          {/* Left Rail - Fixed Pipeline */}
+          <div className="flex flex-col gap-3 items-start w-52 sticky top-20 self-start max-h-[calc(100vh-5rem)] overflow-y-auto">
             {/* Pipeline Selection */}
             <div className="flex flex-col gap-1 items-start w-full">
               <div className="bg-white border border-gray-200 h-9.5 rounded w-full">
@@ -156,8 +230,8 @@ export default function RulesEnginePage() {
             </div>
           </div>
 
-          {/* Tab Content */}
-          <div className="flex flex-col gap-4 grow items-start min-h-0 min-w-0 pb-0 pt-2 px-8">
+          {/* Tab Content - Scrollable Rules */}
+          <div className="flex flex-col gap-4 grow items-start min-h-0 min-w-0 pb-0 pt-2 px-8 overflow-y-auto">
             {/* Claims Header */}
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-1.25 items-start justify-end">

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, PlusIcon, ChevronRightIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import Sidebar from '@/components/layout/Sidebar';
 import { PatientIcon, PayerIcon, BillingProviderIcon, ProviderIcon, ServiceFacilityIcon } from '@/components/icons';
+import { getClaimById } from '@/data/claims';
 
 interface ClaimDetailsProps {
   params: { id: string };
@@ -13,6 +14,30 @@ interface ClaimDetailsProps {
 export default function ClaimDetails({ params }: ClaimDetailsProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('properties');
+
+  // Get the claim data based on the ID parameter
+  const claim = getClaimById(params.id);
+
+  // If claim not found, show error or redirect
+  if (!claim) {
+    return (
+      <div className="bg-white relative shadow-sm size-full flex h-screen">
+        <Sidebar onClose={() => {}} />
+        <div className="flex-1 bg-neutral-50 flex flex-col min-h-screen ml-52 items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold text-gray-700 mb-4">Claim Not Found</h1>
+            <p className="text-gray-500 mb-4">The claim with ID {params.id} could not be found.</p>
+            <button
+              onClick={() => router.push('/claims')}
+              className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+            >
+              Back to Claims
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     'patient-demographics': false,
     'primary-insurance': false,
@@ -168,11 +193,11 @@ export default function ClaimDetails({ params }: ClaimDetailsProps) {
             {/* Claim Header */}
             <div className="bg-white px-10 py-6 border-b border-gray-200">
               <div className="mb-4">
-                <h1 className="text-xl font-semibold text-gray-800 mb-2">Sean O'Connor</h1>
+                <h1 className="text-xl font-semibold text-gray-800 mb-2">{claim.patient}</h1>
                 <div className="flex items-center gap-4 text-xs text-gray-500">
                   <div>
                     <div className="text-gray-400">Date of service</div>
-                    <div className="text-gray-700">07/31/25</div>
+                    <div className="text-gray-700">{claim.dos}</div>
                   </div>
                   <div className="w-px h-3.5 bg-gray-300"></div>
                   <div>
@@ -218,7 +243,7 @@ export default function ClaimDetails({ params }: ClaimDetailsProps) {
               <div className="flex items-center gap-4">
                 <div className="bg-white border border-gray-200 rounded px-2 py-1 h-18 flex flex-col">
                   <div className="text-xs font-medium text-gray-700 mb-1">Billed</div>
-                  <div className="text-sm font-normal text-gray-800">$256.00</div>
+                  <div className="text-sm font-normal text-gray-800">{claim.billedAmt}</div>
                 </div>
                 <div className="w-0.5 h-5 bg-gray-300"></div>
                 <div className="bg-white border border-gray-200 rounded px-2 py-1 h-18 flex flex-col">
@@ -292,7 +317,7 @@ export default function ClaimDetails({ params }: ClaimDetailsProps) {
                           </div>
                           <div className="flex flex-col">
                             <div className="text-xs font-normal text-gray-500">Patient</div>
-                            <div className="text-sm font-medium text-gray-700">Sean OConnor</div>
+                            <div className="text-sm font-medium text-gray-700">{claim.patient}</div>
                           </div>
                         </div>
                         <div className="flex flex-col ml-6 w-24">
@@ -323,12 +348,12 @@ export default function ClaimDetails({ params }: ClaimDetailsProps) {
                           </div>
                           <div className="flex flex-col">
                             <div className="text-xs font-normal text-gray-500">Payer</div>
-                            <div className="text-sm font-medium text-gray-700">Aetna</div>
+                            <div className="text-sm font-medium text-gray-700">{claim.payerName}</div>
                           </div>
                         </div>
                         <div className="flex flex-col ml-6 w-24">
                           <div className="text-xs font-normal text-gray-500">Payer ID</div>
-                          <div className="text-sm font-normal text-gray-700">60054</div>
+                          <div className="text-sm font-normal text-gray-700">{claim.payerId}</div>
                         </div>
                         <div className="flex flex-col ml-6 flex-1">
                           <div className="text-xs font-normal text-gray-500">Member ID</div>
